@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import Table from '../components/Table';
 import Form from '../components/Form';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 
 const Inventario = () => {
+  const { user } = useAuth();
   const [inventario, setInventario] = useState([]);
   const [productos, setProductos] = useState([]);
   const [almacenes, setAlmacenes] = useState([]);
@@ -27,6 +29,9 @@ const Inventario = () => {
       setAlmacenes(almacenesRes.data);
     } catch (error) {
       console.error('Error fetching data:', error);
+      if (error.response?.status === 403) {
+        alert('No tienes permisos para ver esta información');
+      }
     } finally {
       setLoading(false);
     }
@@ -78,13 +83,15 @@ const Inventario = () => {
       key: 'acciones',
       header: 'Acciones',
       render: (_, row) => (
-        <button
-          onClick={() => handleDelete(row.id)}
-          className="text-red-600 hover:text-red-800"
-          title="Eliminar"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+        user?.rol === 1 && (
+          <button
+            onClick={() => handleDelete(row.id)}
+            className="text-red-600 hover:text-red-800"
+            title="Eliminar"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        )
       )
     }
   ];
@@ -124,13 +131,15 @@ const Inventario = () => {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800">Inventario</h1>
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          <Plus className="w-5 h-5" />
-          <span>Nuevo Registro</span>
-        </button>
+        {user?.rol === 1 && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Nuevo Registro</span>
+          </button>
+        )}
       </div>
 
       {showForm && (

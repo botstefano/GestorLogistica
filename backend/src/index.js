@@ -9,6 +9,7 @@ const productosRoutes = require('./routes/productos');
 const ordenesCompraRoutes = require('./routes/ordenesCompra');
 const inventariosRoutes = require('./routes/inventarios');
 const costesAlmacenamientoRoutes = require('./routes/costesAlmacenamiento');
+const costesLogisticosRoutes = require('./routes/costesLogisticos');
 const vehiculosRoutes = require('./routes/vehiculos');
 const costesTransporteRoutes = require('./routes/costesTransporte');
 const almacenesRoutes = require('./routes/almacenes');
@@ -33,6 +34,7 @@ app.use('/api/productos', productosRoutes);
 app.use('/api/ordenes-compra', ordenesCompraRoutes);
 app.use('/api/inventarios', inventariosRoutes);
 app.use('/api/costes-almacenamiento', costesAlmacenamientoRoutes);
+app.use('/api/costes-logisticos', costesLogisticosRoutes);
 app.use('/api/vehiculos', vehiculosRoutes);
 app.use('/api/costes-transporte', costesTransporteRoutes);
 app.use('/api/almacenes', almacenesRoutes);
@@ -40,6 +42,17 @@ app.use('/api/distribuciones', distribucionesRoutes);
 app.use('/api/alertas', alertasRoutes);
 app.use('/api/auditorias', auditoriasRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Sistema de Gestión de Costes Logísticos - API',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      api: '/api/*'
+    }
+  });
+});
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Sistema de Gestión de Costes Logísticos - API funcionando' });

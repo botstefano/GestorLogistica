@@ -11,7 +11,8 @@ const dashboardController = {
     try {
       const today = new Date();
       const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      const fecha_inicio = firstDayOfMonth.toISOString().split('T')[0];
+      // Query all available data from 2024 onwards to show simulation data
+      const fecha_inicio = '2024-01-01';
       const fecha_fin = today.toISOString().split('T')[0];
 
       const totalLogistico = await CosteLogisticoModel.getGrandTotal(fecha_inicio, fecha_fin);
@@ -78,7 +79,8 @@ const dashboardController = {
     try {
       const today = new Date();
       const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      const fecha_inicio = firstDayOfMonth.toISOString().split('T')[0];
+      // Query all available data from 2024 onwards to show simulation data
+      const fecha_inicio = '2024-01-01';
       const fecha_fin = today.toISOString().split('T')[0];
 
       const productos = await ProductoModel.findAll();

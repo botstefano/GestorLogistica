@@ -22,6 +22,9 @@ export const AuthProvider = ({ children }) => {
       setUser(response.data);
     } catch (error) {
       console.error('Error fetching profile:', error);
+      if (error.response?.status === 403) {
+        console.error('Acceso denegado al perfil del usuario');
+      }
       logout();
     } finally {
       setLoading(false);

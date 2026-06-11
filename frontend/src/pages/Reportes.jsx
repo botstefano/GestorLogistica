@@ -51,6 +51,9 @@ const Reportes = () => {
       ]);
     } catch (error) {
       console.error('Error fetching reportes:', error);
+      if (error.response?.status === 403) {
+        alert('No tienes permisos para ver los reportes');
+      }
     } finally {
       setLoading(false);
     }
@@ -58,18 +61,33 @@ const Reportes = () => {
 
   const exportToPDF = async (reporte) => {
     try {
-      const response = await api.post('/reportes/pdf', { 
-        tipo: reporte.tipo,
-        datos: reporte.datos 
-      }, { responseType: 'blob' });
+      // Generar PDF en el cliente usando jspdf
+      const { jsPDF } = await import('jspdf');
+      const doc = new jsPDF();
       
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `${reporte.nombre.toLowerCase().replace(/\s+/g, '_')}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      doc.setFontSize(18);
+      doc.text(reporte.nombre, 10, 20);
+      doc.setFontSize(12);
+      doc.text(reporte.descripcion, 10, 30);
+      
+      let y = 50;
+      doc.setFontSize(10);
+      
+      if (reporte.datos && Array.isArray(reporte.datos)) {
+        reporte.datos.forEach((item, index) => {
+          if (y > 280) {
+            doc.addPage();
+            y = 20;
+          }
+          const text = JSON.stringify(item).substring(0, 80);
+          doc.text(`${index + 1}. ${text}`, 10, y);
+          y += 10;
+        });
+      } else {
+        doc.text('No hay datos disponibles', 10, y);
+      }
+      
+      doc.save(`${reporte.nombre.toLowerCase().replace(/\s+/g, '_')}.pdf`);
     } catch (error) {
       console.error('Error exporting PDF:', error);
       alert('Error al exportar PDF');
@@ -78,18 +96,14 @@ const Reportes = () => {
 
   const exportToExcel = async (reporte) => {
     try {
-      const response = await api.post('/reportes/excel', { 
-        tipo: reporte.tipo,
-        datos: reporte.datos 
-      }, { responseType: 'blob' });
+      // Generar Excel en el cliente usando xlsx
+      const XLSX = await import('xlsx');
       
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `${reporte.nombre.toLowerCase().replace(/\s+/g, '_')}.xlsx`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      const worksheet = XLSX.utils.json_to_sheet(reporte.datos || []);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Datos');
+      
+      XLSX.writeFile(workbook, `${reporte.nombre.toLowerCase().replace(/\s+/g, '_')}.xlsx`);
     } catch (error) {
       console.error('Error exporting Excel:', error);
       alert('Error al exportar Excel');

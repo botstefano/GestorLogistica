@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import Table from '../components/Table';
 import Form from '../components/Form';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 
 const Compras = () => {
+  const { user } = useAuth();
   const [ordenes, setOrdenes] = useState([]);
   const [proveedores, setProveedores] = useState([]);
   const [productos, setProductos] = useState([]);
@@ -28,6 +30,9 @@ const Compras = () => {
       setProductos(productosRes.data);
     } catch (error) {
       console.error('Error fetching data:', error);
+      if (error.response?.status === 403) {
+        alert('No tienes permisos para ver esta información');
+      }
     } finally {
       setLoading(false);
     }
@@ -102,7 +107,7 @@ const Compras = () => {
       header: 'Acciones',
       render: (_, row) => (
         <div className="flex space-x-2">
-          {row.estado === 'pendiente' && (
+          {row.estado === 'pendiente' && [1, 2, 3].includes(user?.rol) && (
             <button
               onClick={() => handleUpdateEstado(row.id, 'en_almacen')}
               className="text-blue-600 hover:text-blue-800"
@@ -111,7 +116,7 @@ const Compras = () => {
               Recibir
             </button>
           )}
-          {row.estado === 'en_almacen' && (
+          {row.estado === 'en_almacen' && [1, 2, 3].includes(user?.rol) && (
             <button
               onClick={() => handleUpdateEstado(row.id, 'entregado')}
               className="text-green-600 hover:text-green-800"
@@ -120,13 +125,15 @@ const Compras = () => {
               Entregar
             </button>
           )}
-          <button
-            onClick={() => handleDelete(row.id)}
-            className="text-red-600 hover:text-red-800"
-            title="Eliminar"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
+          {user?.rol === 1 && (
+            <button
+              onClick={() => handleDelete(row.id)}
+              className="text-red-600 hover:text-red-800"
+              title="Eliminar"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
         </div>
       )
     }
@@ -161,13 +168,15 @@ const Compras = () => {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800">Órdenes de Compra</h1>
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          <Plus className="w-5 h-5" />
-          <span>Nueva Orden</span>
-        </button>
+        {[1, 2].includes(user?.rol) && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Nueva Orden</span>
+          </button>
+        )}
       </div>
 
       {showForm && (

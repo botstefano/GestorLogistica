@@ -16,6 +16,9 @@ const Auditoria = () => {
       setAuditorias(response.data);
     } catch (error) {
       console.error('Error fetching auditorias:', error);
+      if (error.response?.status === 403) {
+        alert('No tienes permisos para ver la auditoría');
+      }
     } finally {
       setLoading(false);
     }

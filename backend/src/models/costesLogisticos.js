@@ -39,7 +39,7 @@ class CosteLogisticoModel {
   static async getTotalByPeriod(fecha_inicio, fecha_fin) {
     const result = await pool.query(`
       SELECT 
-        SUM(monto_total) as total_general,
+        SUM(monto_total) as total,
         tipo_operacion,
         COUNT(*) as cantidad_operaciones
       FROM costes_logisticos_totales

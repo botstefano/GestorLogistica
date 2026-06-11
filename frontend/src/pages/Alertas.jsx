@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import Table from '../components/Table';
 import { CheckCircle } from 'lucide-react';
 
 const Alertas = () => {
+  const { user } = useAuth();
   const [alertas, setAlertas] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -17,6 +19,9 @@ const Alertas = () => {
       setAlertas(response.data);
     } catch (error) {
       console.error('Error fetching alertas:', error);
+      if (error.response?.status === 403) {
+        alert('No tienes permisos para ver las alertas');
+      }
     } finally {
       setLoading(false);
     }
@@ -63,14 +68,16 @@ const Alertas = () => {
       key: 'acciones',
       header: 'Acciones',
       render: (_, row) => (
-        <button
-          onClick={() => handleResolve(row.id)}
-          className="flex items-center space-x-1 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-          title="Marcar como resuelta"
-        >
-          <CheckCircle className="w-4 h-4" />
-          <span>Resolver</span>
-        </button>
+        [1, 3].includes(user?.rol) && (
+          <button
+            onClick={() => handleResolve(row.id)}
+            className="flex items-center space-x-1 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+            title="Marcar como resuelta"
+          >
+            <CheckCircle className="w-4 h-4" />
+            <span>Resolver</span>
+          </button>
+        )
       )
     }
   ];
